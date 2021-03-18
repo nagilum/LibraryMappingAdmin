@@ -15,6 +15,13 @@ body {
     text-rendering: geometricPrecision;
 }
 
+    body .loading {
+        background-image: url('/assets/img/ajax-loader.gif');
+        background-position: center center;
+        background-repeat: no-repeat;
+        color: transparent;
+    }
+
     body form {
         margin: 0;
         padding: 0;
@@ -102,14 +109,11 @@ body {
                         color: black;
                         cursor: pointer;
                         display: block;
+                        font-weight: bold;
                         height: 50px;
                         padding: 13px 10px 0;
                         width: 100%;
                     }
-
-                        body interface nav ul li a.active {
-                            background-color: #ddd;
-                        }
 
                         body interface nav ul li a:hover {
                             background-color: #eee;
@@ -119,6 +123,7 @@ body {
                             background-color: #ddd;
                             border-radius: 5px;
                             display: inline-block;
+                            font-weight: normal;
                             padding: 0 5px;
                         }
 
@@ -131,16 +136,33 @@ body {
                                 color: green;
                             }
 
+                        body interface nav ul li a.active {
+                            background-color: #ddd;
+                        }
+
+                            body interface nav ul li a.active span {
+                                background-color: #ccc;
+                            }
+
+                        body interface nav ul li a.warning {
+                            background-image: url('/assets/img/warning.png');
+                            background-position: left 10px center;
+                            background-repeat: no-repeat;
+                            padding-left: 30px;
+                        }
+
         body interface panels {
             display: block;
-            margin: 50px 0 0;
+            margin: 52px 0 0;
             padding: 0;
         }
 
             body interface panels panel {
+                background-color: white;
+                color: #333;
                 display: none;
                 margin: 0;
-                padding: 0;
+                padding: 10px 10px 100px;
             }
 
                 body interface panels panel.active {

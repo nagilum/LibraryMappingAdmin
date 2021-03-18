@@ -66,14 +66,13 @@ const fw = (url, method, payload, headers) => {
 const checkForLoggedInUser = () => {
     const token = localStorage.getItem('token');
 
-    if (!token) {
-        return;
+    if (token) {
+        window.token = token;
+        document.querySelector('interface').classList.add('active');
     }
-
-    window.token = token;
-
-    document.querySelector('login').classList.remove('active');
-    document.querySelector('interface').classList.add('active');
+    else {
+        document.querySelector('login').classList.add('active');
+    }
 };
 
 /**
@@ -82,32 +81,51 @@ const checkForLoggedInUser = () => {
 const getPanelLinkStats = () => {
     return fw('/api/stats')
         .then(obj => {
-            // File entries.
-            const span1 = obj.fileEntriesWithoutPackage > 0
-                ? ` <span class="count">${obj.fileEntries}/<span class="red">${obj.fileEntriesWithoutPackage}</span></span>`
-                : ` <span class="count">${obj.fileEntries}</span>`;
+            if (!obj) {
+                return;
+            }
+
+            const lfe = document.querySelector('a#LinkFileEntries'),
+                lp = document.querySelector('a#LinkPackages'),
+                lbp = document.querySelector('a#LinkBadPackages');
+
+            const html1 = obj.fileEntriesWithoutPackage > 0
+                ? `${lfe.getAttribute('data-title')} <span class="count">${obj.fileEntries}/<span class="red">${obj.fileEntriesWithoutPackage}</span></span>`
+                : `${lfe.getAttribute('data-title')} <span class="count">${obj.fileEntries}</span>`;
+
+            const html2 = `${lp.getAttribute('data-title')} <span class="count">${obj.packages}</span>`,
+                html3 = `${lbp.getAttribute('data-title')} <span class="count ${(obj.badPackages > 0 ? 'red' : 'green')}">${obj.badPackages}</span>`;
 
             const title1 = obj.fileEntriesWithoutPackage > 0
                 ? `Total entries: ${obj.fileEntries} - Entries without packages: ${obj.fileEntriesWithoutPackage}`
                 : `Total entries: ${obj.fileEntries}`;
 
-            document.querySelector('a.panel-file-entries').setAttribute('title', title1);
-            document.querySelector('a.panel-file-entries').innerHTML += span1;
+            const title2 = `Total packages: ${obj.packages}`,
+                title3 = `Total bad packages: ${obj.badPackages}`;
 
-            // Packages.
-            const span2 = ` <span class="count">${obj.packages}</span>`;
-            const title2 = `Total packages: ${obj.packages}`;
+            lfe.setAttribute('title', title1);
+            lfe.innerHTML = html1;
 
-            document.querySelector('a.panel-packages').setAttribute('title', title2);
-            document.querySelector('a.panel-packages').innerHTML += span2;
+            lp.setAttribute('title', title2);
+            lp.innerHTML = html2;
 
-            // Bad packages.
-            const span3 = ` <span class="count ${(obj.badPackages > 0 ? 'red' : 'green')}">${obj.badPackages}</span>`;
-            const title3 = `Total bad packages: ${obj.badPackages}`;
+            lbp.setAttribute('title', title3);
+            lbp.innerHTML = html3;
 
-            document.querySelector('a.panel-bad-packages').setAttribute('title', title3);
-            document.querySelector('a.panel-bad-packages').innerHTML += span3;
+            if (obj.fileEntriesWithoutPackage > 0) {
+                lfe.classList.add('warning');
+            }
+
+            if (obj.badPackages > 0) {
+                lbp.classList.add('warning');
+            }
         });
+};
+
+/**
+ * Load and display the File Entries table.
+ */
+const loadFileEntries = () => {
 };
 
 /**
@@ -124,6 +142,8 @@ const login = (e) => {
         return error('Both username and password are required!');
     }
 
+    e.target.classList.add('loading');
+
     return fw(
             '/api/user/login',
             'POST',
@@ -132,6 +152,8 @@ const login = (e) => {
                 password: password
             })
         .then(obj => {
+            e.target.classList.remove('loading');
+
             if (!obj.token) {
                 return error(obj.message);
             }
@@ -160,6 +182,7 @@ const switchPanel = (e) => {
         return;
     }
 
+    // Switch the active link.
     document.querySelectorAll('a.panel-link')
         .forEach(a => {
             if (a.getAttribute('data-panel-id') === id) {
@@ -170,15 +193,25 @@ const switchPanel = (e) => {
             }
         });
 
+    // Switch the active panel.
     document.querySelectorAll('panel')
         .forEach(panel => {
             if (panel.getAttribute('id') === id) {
+                panel.innerHTML = '';
                 panel.classList.add('active');
+                panel.classList.add('loading');
             }
             else {
                 panel.classList.remove('active');
             }
         });
+
+    // Run function, if present.
+    const ftr = e.target.getAttribute('data-function');
+
+    if (window[ftr]) {
+        window[ftr]();
+    }
 };
 
 /**
@@ -202,4 +235,7 @@ const switchPanel = (e) => {
 
     // Query for stats.
     getPanelLinkStats();
+
+    // Setup link to global functions.
+    window.loadFileEntries = loadFileEntries;
 })();

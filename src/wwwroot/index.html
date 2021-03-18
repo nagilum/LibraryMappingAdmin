@@ -7,7 +7,7 @@
         <link rel="stylesheet" href="/assets/css/app.css?v=1.0">
     </head>
     <body>
-        <login class="active">
+        <login>
             <h1>.NET Library Admin</h1>
             
             <p>
@@ -32,9 +32,21 @@
         <interface>
             <nav>
                 <ul>
-                    <li><a class="panel-link panel-file-entries" data-panel-id="PanelFileEntries">File Entries</a></li>
-                    <li><a class="panel-link panel-packages" data-panel-id="PanelPackages">Packages</a></li>
-                    <li><a class="panel-link panel-bad-packages" data-panel-id="PanelBadPackages">Bad Packages</a></li>
+                    <li><a class="panel-link panel-file-entries"
+                           id="LinkFileEntries"
+                           data-function="loadFileEntries"
+                           data-panel-id="PanelFileEntries"
+                           data-title="File Entries">File Entries</a></li>
+                    <li><a class="panel-link panel-packages"
+                           id="LinkPackages"
+                           data-function=""
+                           data-panel-id="PanelPackages"
+                           data-title="Packages">Packages</a></li>
+                    <li><a class="panel-link panel-bad-packages"
+                           id="LinkBadPackages"
+                           data-function=""
+                           data-panel-id="PanelBadPackages"
+                           data-title="Bad Packages">Bad Packages</a></li>
                 </ul> 
             </nav>
             <panels>
