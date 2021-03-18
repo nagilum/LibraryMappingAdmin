@@ -29,6 +29,10 @@ const fw = (url, method, payload, headers) => {
 
     headers['Accept'] = 'application/json';
 
+    if (window.token) {
+        headers['Authorization'] = `Bearer ${window.token}`;
+    }
+
     if (payload) {
         headers['Content-Type'] = 'application/json';
     }
@@ -126,6 +130,31 @@ const getPanelLinkStats = () => {
  * Load and display the File Entries table.
  */
 const loadFileEntries = () => {
+    return fw('/api/fileentry')
+        .then(obj => {
+            if (!obj) {
+                return;
+            }
+
+            console.log('obj', obj);
+
+            const panel = document.querySelector('panel#PanelFileEntries');
+
+            panel.classList.remove('loading');
+
+            obj.servers.forEach(server => {
+                const sn = document.createElement('h1'),
+                    ips = document.createElement('span');
+
+                sn.innerHTML = `Server: <span>${server.serverName}</span>`;
+                ips.innerText = `${server.serverIps.join(', ')}`;
+
+                panel.appendChild(sn);
+                panel.appendChild(ips);
+
+                // TODO
+            });
+        });
 };
 
 /**

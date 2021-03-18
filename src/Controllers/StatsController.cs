@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using DotNetLibraryAdmin.Attributes;
 using DotNetLibraryAdmin.Database;
 using DotNetLibraryAdmin.Database.Tables;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,7 @@ namespace DotNetLibraryAdmin.Controllers
         /// </summary>
         /// <returns>Stats.</returns>
         [HttpGet]
+        [VerifyAuthorization]
         public async Task<ActionResult> GetStats()
         {
             await using var db = new DatabaseContext();
