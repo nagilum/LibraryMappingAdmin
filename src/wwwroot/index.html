@@ -1,0 +1,55 @@
+﻿<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>.NET Library Admin</title>
+        <link rel="stylesheet" href="/assets/css/app.css?v=1.0">
+    </head>
+    <body>
+        <login class="active">
+            <h1>.NET Library Admin</h1>
+            
+            <p>
+                Enter your credentials to log in.
+            </p>
+            
+            <form>
+                <p>
+                    <label for="LoginUsername">Username</label>
+                    <input type="text" id="LoginUsername" placeholder="user@example.com">
+                </p>
+
+                <p>
+                    <label for="LoginPassword">Password</label>
+                    <input type="password" id="LoginPassword" placeholder="">
+                </p>
+                
+                <input type="submit" id="Login" value="Login">
+            </form>
+        </login>
+        
+        <interface>
+            <nav>
+                <ul>
+                    <li><a class="panel-link panel-file-entries" data-panel-id="PanelFileEntries">File Entries</a></li>
+                    <li><a class="panel-link panel-packages" data-panel-id="PanelPackages">Packages</a></li>
+                    <li><a class="panel-link panel-bad-packages" data-panel-id="PanelBadPackages">Bad Packages</a></li>
+                </ul> 
+            </nav>
+            <panels>
+                <panel id="PanelFileEntries">
+                    PanelFileEntries
+                </panel>
+                <panel id="PanelPackages">
+                    PanelPackages
+                </panel>
+                <panel id="PanelBadPackages">
+                    PanelBadPackages
+                </panel>
+            </panels>
+        </interface>
+        
+        <script src="/assets/js/app.js"></script>
+    </body>
+</html>

@@ -1,0 +1,159 @@
+﻿* {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #1d1f21;
+    color: #c9cacc;
+    font-family: sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    height: 100%;
+    line-height: 1.725;
+    margin: 0;
+    padding: 0;
+    text-rendering: geometricPrecision;
+}
+
+    body form {
+        margin: 0;
+        padding: 0;
+    }
+
+    body login {
+        display: none;
+        margin: 0 auto;
+        padding: 100px 0 0;
+        width: 400px;
+    }
+
+        body login.active {
+            display: block;
+        }
+
+        body login h1 {
+            color: #2b9cca;
+            display: block;
+            font-family: serif;
+            font-size: 2.5rem;
+            letter-spacing: 0.01em;
+            line-height: 1.25;
+            margin: 0;
+            padding: 2.5rem 0 1rem;
+            position: relative;
+            text-transform: none;
+        }
+
+        body login p label {
+            cursor: pointer;
+        }
+
+            body login p label::after {
+                content: ':';
+            }
+
+        body login p input[type=text],
+        body login p input[type=password] {
+            display: block;
+            padding: 10px 13px;
+            width: 100%;
+        }
+
+        body login input[type=submit] {
+            padding: 10px 13px;
+        }
+
+    body interface {
+        display: none;
+        margin: 0;
+        padding: 0;
+    }
+
+        body interface.active {
+            display: block;
+        }
+
+        body interface nav {
+            background-color: white;
+            display: block;
+            height: 50px;
+            left: 0;
+            margin: 0;
+            padding: 0;
+            position: fixed;
+            right: 0;
+            top: 0;
+        }
+
+            body interface nav ul {
+                list-style: none;
+                margin: 0;
+                padding: 0;
+            }
+
+                body interface nav ul li {
+                    display: block;
+                    float: left;
+                    width: 200px;
+                }
+
+                    body interface nav ul li a {
+                        background-color: white;
+                        color: black;
+                        cursor: pointer;
+                        display: block;
+                        height: 50px;
+                        padding: 13px 10px 0;
+                        width: 100%;
+                    }
+
+                        body interface nav ul li a.active {
+                            background-color: #ddd;
+                        }
+
+                        body interface nav ul li a:hover {
+                            background-color: #eee;
+                        }
+
+                        body interface nav ul li a span {
+                            background-color: #ddd;
+                            border-radius: 5px;
+                            display: inline-block;
+                            padding: 0 5px;
+                        }
+
+                            body interface nav ul li a span.red {
+                                color: red;
+                                padding: 0;
+                            }
+
+                            body interface nav ul li a span.green {
+                                color: green;
+                            }
+
+        body interface panels {
+            display: block;
+            margin: 50px 0 0;
+            padding: 0;
+        }
+
+            body interface panels panel {
+                display: none;
+                margin: 0;
+                padding: 0;
+            }
+
+                body interface panels panel.active {
+                    display: block;
+                }
+
+@media screen and (max-width: 700px) {
+    body login {
+        padding: 0 10px;
+        width: 100%;
+    }
+
+        body login h1 {
+            font-size: 2rem;
+        }
+}
