@@ -1,9 +1,62 @@
 ﻿"use strict";
 
 /**
+ * Show a popup that allows the user to assign a package to a filename.
+ * @param {Event} e Link click event.
+ */
+const assignPackage = (e) => {
+    e.preventDefault();
+
+    showPopup('PopupAttachPackage');
+
+    // TODO
+};
+
+/**
+ * Check if the user is already logged in and bypass the login form.
+ */
+const checkForLoggedInUser = () => {
+    const token = localStorage.getItem('token');
+
+    if (token) {
+        window.token = token;
+        document.querySelector('interface').classList.add('active');
+    }
+    else {
+        document.querySelector('login').classList.add('active');
+    }
+};
+
+/**
+ * Close all active popups.
+ */
+const closePopup = () => {
+    document.querySelectorAll('popup.active')
+        .forEach(e => {
+            e.classList.remove('active');
+        });
+
+    document.querySelectorAll('popups')
+        .forEach(e => {
+            e.classList.remove('active');
+        });
+}
+
+/**
+ * Close all active popups.
+ * @param {Event} e 'popups' click event.
+ */
+const closePopups = (e) => {
+    if (e.target.tagName.toLowerCase() !== 'popups') {
+        return;
+    }
+
+    closePopup();
+}
+
+/**
  * Display an error.
  * @param {String} err The error to show.
- * @returns null.
  */
 const error = (err) => {
     console.error(err);
@@ -65,21 +118,6 @@ const fw = (url, method, payload, headers) => {
 };
 
 /**
- * Check if the user is already logged in and bypass the login form.
- */
-const checkForLoggedInUser = () => {
-    const token = localStorage.getItem('token');
-
-    if (token) {
-        window.token = token;
-        document.querySelector('interface').classList.add('active');
-    }
-    else {
-        document.querySelector('login').classList.add('active');
-    }
-};
-
-/**
  * Get stats for each of the tab links.
  */
 const getPanelLinkStats = () => {
@@ -132,27 +170,113 @@ const getPanelLinkStats = () => {
 const loadFileEntries = () => {
     return fw('/api/fileentry')
         .then(obj => {
-            if (!obj) {
+            return fw('/api/package')
+                .then(list => {
+                    return {
+                        servers: obj.servers,
+                        packages: list
+                    };
+                });
+        })
+        .then(wr => {
+            if (!wr) {
                 return;
             }
 
-            console.log('obj', obj);
+            const servers = wr.servers,
+                packages = wr.packages;
+
+            console.log('wr', wr);
+            console.log('servers', servers);
+            console.log('packages', packages);
 
             const panel = document.querySelector('panel#PanelFileEntries');
 
             panel.classList.remove('loading');
 
-            obj.servers.forEach(server => {
+            servers.forEach(server => {
                 const sn = document.createElement('h1'),
-                    ips = document.createElement('span');
+                    ips = document.createElement('span'),
+                    table = document.createElement('table'),
+                    thead = document.createElement('thead'),
+                    tbody = document.createElement('tbody');
 
                 sn.innerHTML = `Server: <span>${server.serverName}</span>`;
                 ips.innerText = `${server.serverIps.join(', ')}`;
 
+                thead.innerHTML =
+                    '<tr>' +
+                    '  <th>Filename</th>' +
+                    '  <th>File Version</th>' +
+                    '  <th>Product Version</th>' +
+                    '  <th>Package</th>' +
+                    '  <th>Last Scanned</th>' +
+                    '</tr>';
+
+                table.appendChild(thead);
+                table.appendChild(tbody);
+
                 panel.appendChild(sn);
                 panel.appendChild(ips);
+                panel.appendChild(table);
 
-                // TODO
+                server.fileEntries.forEach(fe => {
+                    const tr = document.createElement('tr'),
+                        tdFilename = document.createElement('td'),
+                        tdFileVersion = document.createElement('td'),
+                        tdProductVersion = document.createElement('td'),
+                        tdPackage = document.createElement('td'),
+                        tdLastScanned = document.createElement('td');
+
+                    // Filename
+                    tdFilename.innerText = fe.fileName;
+
+                    // File Version
+                    tdFileVersion.innerText = fe.fileVersion;
+
+                    // Product Version
+                    tdProductVersion.innerText = fe.productVersion;
+
+                    // Package
+                    if (fe.packageId) {
+                        let pf = false;
+
+                        packages.forEach(pkg => {
+                            if (pkg.id === fe.packageId) {
+                                tdPackage.innerText = pkg.name;
+                                pf = true;
+                            }
+                        });
+
+                        if (!pf) {
+                            tdPackage.classList.add('warning');
+                            tdPackage.innerText = `Package Not Found: #${fe.packageId}`;
+                        }
+                    }
+                    else {
+                        const a = document.createElement('a');
+
+                        a.setAttribute('data-filename', fe.fileName);
+                        a.setAttribute('data-fe-id', fe.id);
+                        a.classList.add('warning');
+                        a.innerText = 'Assign Package';
+                        a.addEventListener('click', assignPackage);
+
+                        tdPackage.appendChild(a);
+                    }
+
+                    // Last Scanned
+                    tdLastScanned.innerText = fe.lastScan;
+
+                    // Done.
+                    tr.appendChild(tdFilename);
+                    tr.appendChild(tdFileVersion);
+                    tr.appendChild(tdProductVersion);
+                    tr.appendChild(tdPackage);
+                    tr.appendChild(tdLastScanned);
+
+                    tbody.appendChild(tr);
+                });
             });
         });
 };
@@ -197,6 +321,18 @@ const login = (e) => {
             return null;
         });
 };
+
+/**
+ * Show a specific popup dialog.
+ * @param {String} id ID of the element.
+ */
+const showPopup = (id) => {
+    const popup = document.querySelector(`popup#${id}`),
+        popups = popup.parentElement;
+
+    popup.classList.add('active');
+    popups.classList.add('active');
+}
 
 /**
  * Switch the active panel.
@@ -249,6 +385,7 @@ const switchPanel = (e) => {
 (() => {
     // Add single click events.
     document.querySelector('input#Login').addEventListener('click', login);
+    document.querySelector('popups').addEventListener('click', closePopups);
 
     // Add multi-link click events.
     document.querySelectorAll('a.panel-link')

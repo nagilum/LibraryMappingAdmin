@@ -186,6 +186,71 @@ body {
                         font-weight: bold;
                     }
 
+                body interface panels panel table {
+                    margin-top: 20px;
+                    width: 100%;
+                }
+
+                    body interface panels panel table thead { }
+
+                        body interface panels panel table thead tr { }
+
+                            body interface panels panel table thead tr th {
+                                background-color: #eee;
+                                font-weight: bold;
+                                padding: 2px 5px;
+                                text-align: left;
+                            }
+
+                    body interface panels panel table tbody { }
+
+                        body interface panels panel table tbody tr { }
+
+                            body interface panels panel table tbody tr td {
+                                background-color: #eee;
+                                padding: 2px 5px;
+                            }
+
+                                body interface panels panel table tbody tr td a { }
+
+                                    body interface panels panel table tbody tr td a.warning {
+                                        background-image: url('/assets/img/warning.png');
+                                        background-position: left center;
+                                        background-repeat: no-repeat;
+                                        cursor: pointer;
+                                        display: block;
+                                        padding-left: 20px;
+                                    }
+
+                            body interface panels panel table tbody tr:hover td {
+                                background-color: #ddd;
+                            }
+
+        body interface popups {
+            background-color: rgba(0, 0, 0, .25);
+            bottom: 0;
+            display: none;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+        }
+
+            body interface popups.active {
+                display: block;
+            }
+
+            body interface popups popup {
+                background-color: white;
+                display: none;
+                margin: 100px auto 0;
+                width: 700px;
+            }
+
+                body interface popups popup.active {
+                    display: block;
+                }
+
 @media screen and (max-width: 700px) {
     body login {
         padding: 0 10px;

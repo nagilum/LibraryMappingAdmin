@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using DotNetLibraryAdmin.Attributes;
 using DotNetLibraryAdmin.Controllers.Payloads;
 using DotNetLibraryAdmin.Database;
-using DotNetLibraryAdmin.Database.Tables;
 using Microsoft.EntityFrameworkCore;
 
 namespace DotNetLibraryAdmin.Controllers
@@ -16,7 +15,7 @@ namespace DotNetLibraryAdmin.Controllers
     public class FileEntryController : ControllerBase
     {
         /// <summary>
-        /// Get a list of all file entries.
+        /// Get a list of all file entries, grouped by servers.
         /// </summary>
         /// <returns>List of file entries.</returns>
         [HttpGet]
@@ -47,15 +46,14 @@ namespace DotNetLibraryAdmin.Controllers
                     var server = new FileEntryGetAllResponsePayload.PayloadServer
                     {
                         ServerName = sn,
-                        ServerIps = new List<string>()
+                        ServerIps = new List<string>(),
+                        FileEntries = list
+                            .Where(n => n.ServerName == sn)
+                            .ToList()
                     };
 
-                    var serverEntries = list
-                        .Where(n => n.ServerName == sn)
-                        .ToList();
-
                     // Get all IPs.
-                    foreach (var se in serverEntries.Where(n => n.ServerIps != null))
+                    foreach (var se in server.FileEntries.Where(n => n.ServerIps != null))
                     {
                         var ips = se.ServerIps
                             .Split(',')
