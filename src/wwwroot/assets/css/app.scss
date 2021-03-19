@@ -177,6 +177,14 @@ body {
                     }
                 }
 
+                ul {
+                    li {
+                        a {
+                            cursor: pointer;
+                        }
+                    }
+                }
+
                 table {
                     margin-top: 20px;
                     width: 100%;

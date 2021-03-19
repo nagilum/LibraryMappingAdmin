@@ -124,6 +124,8 @@ body {
           text-transform: none; }
           body interface panels panel h1 span {
             font-weight: bold; }
+        body interface panels panel ul li a {
+          cursor: pointer; }
         body interface panels panel table {
           margin-top: 20px;
           width: 100%; }

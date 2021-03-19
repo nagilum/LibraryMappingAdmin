@@ -88,7 +88,7 @@ const attachPackage = (e) => {
             select.innerHTML = '';
 
             packages.forEach(pkg => {
-                const option = document.createElement('option');
+                const option = ce('option');
 
                 option.value = pkg.id;
                 option.innerText = pkg.name;
@@ -135,6 +135,15 @@ const attachPackageSave = (e) => {
                         });
                 });
         });
+};
+
+/**
+ * Shorthand for document.createElement.
+ * @param {String} tagName Name of the tag.
+ * @returns {Element}
+ */
+const ce = (tagName) => {
+    return document.createElement(tagName);
 };
 
 /**
@@ -199,6 +208,7 @@ const error = (err) => {
  * @param {String} method HTTP method to use. Defaults to 'GET'.
  * @param {Object} payload Payload to transmit.
  * @param {Object} headers Additional headers to transmit.
+ * @returns {Promise}
  */
 const fw = (url, method, payload, headers) => {
     if (!method) {
@@ -322,14 +332,35 @@ const loadFileEntries = () => {
 
             panel.classList.remove('loading');
 
-            servers.forEach(server => {
-                const sn = document.createElement('h1'),
-                    ips = document.createElement('span'),
-                    table = document.createElement('table'),
-                    thead = document.createElement('thead'),
-                    tbody = document.createElement('tbody');
+            const srvtitle = ce('h1'),
+                srvlist = ce('ul');
 
+            srvtitle.innerText = 'Servers';
+
+            panel.appendChild(srvtitle);
+            panel.appendChild(srvlist);
+
+            servers.forEach(server => {
+                const sn = ce('h1'),
+                    ips = ce('span'),
+                    table = ce('table'),
+                    thead = ce('thead'),
+                    tbody = ce('tbody'),
+                    srvitem = ce('li'),
+                    srvlink = ce('a');
+
+                srvlink.setAttribute('data-server-name', server.serverName);
+                srvlink.classList.add('scroll-to-server');
+                srvlink.innerText = server.serverName;
+                srvlink.addEventListener('click', scrollToServer);
+
+                srvitem.appendChild(srvlink);
+                srvlist.appendChild(srvitem);
+
+                sn.setAttribute('data-server-name', server.serverName);
+                sn.classList.add('server-entry');
                 sn.innerHTML = `Server: <span>${server.serverName}</span>`;
+
                 ips.innerText = `${server.serverIps.join(', ')}`;
 
                 thead.innerHTML =
@@ -349,12 +380,12 @@ const loadFileEntries = () => {
                 panel.appendChild(table);
 
                 server.fileEntries.forEach(fe => {
-                    const tr = document.createElement('tr'),
-                        tdFilename = document.createElement('td'),
-                        tdFileVersion = document.createElement('td'),
-                        tdProductVersion = document.createElement('td'),
-                        tdPackage = document.createElement('td'),
-                        tdLastScanned = document.createElement('td');
+                    const tr = ce('tr'),
+                        tdFilename = ce('td'),
+                        tdFileVersion = ce('td'),
+                        tdProductVersion = ce('td'),
+                        tdPackage = ce('td'),
+                        tdLastScanned = ce('td');
 
                     // Filename
                     tdFilename.innerText = fe.fileName;
@@ -382,8 +413,8 @@ const loadFileEntries = () => {
                         }
                     }
                     else {
-                        const aep = document.createElement('a'),
-                            anp = document.createElement('a');
+                        const aep = ce('a'),
+                            anp = ce('a');
 
                         aep.setAttribute('data-filename', fe.fileName);
                         aep.setAttribute('data-fe-id', fe.id);
@@ -414,6 +445,96 @@ const loadFileEntries = () => {
                     tbody.appendChild(tr);
                 });
             });
+        });
+};
+
+/**
+ * Load and display the Packages table.
+ */
+const loadPackages = () => {
+    const panel = document.querySelector('panel#PanelPackages');
+
+    panel.classList.add('loading');
+    panel.innerHTML = '';
+
+    return fw('/api/package')
+        .then(list => {
+            panel.classList.remove('loading');
+
+            if (!list) {
+                return;
+            }
+
+            const table = ce('table'),
+                thead = ce('thead'),
+                tbody = ce('tbody');
+
+            thead.innerHTML =
+                '<tr>' +
+                '  <th>Name</th>' +
+                '  <th>Files</th>' +
+                '</tr>';
+
+            table.appendChild(thead);
+            table.appendChild(tbody);
+
+            list.forEach(pkg => {
+                const tr = ce('tr'),
+                    tdName = ce('td'),
+                    tdFiles = ce('td');
+
+                const name = ce('div');
+                name.innerText = pkg.name;
+                tdName.appendChild(name);
+
+                if (pkg.files) {
+                    const fileList = JSON.parse(pkg.files),
+                        flul = ce('ul');
+
+                    fileList.forEach(file => {
+                        const flli = ce('li');
+
+                        flli.innerText = file;
+                        flul.appendChild(flli);
+                    });
+
+                    tdFiles.appendChild(flul);
+                }
+
+                if (pkg.nuGetUrl) {
+                    const a = ce('a');
+
+                    a.setAttribute('href', pkg.nuGetUrl);
+                    a.innerText = 'NuGet';
+
+                    tdName.appendChild(a);
+                }
+
+                if (pkg.infoUrl) {
+                    const a = ce('a');
+
+                    a.setAttribute('href', pkg.infoUrl);
+                    a.innerText = 'Info';
+
+                    tdName.appendChild(a);
+                }
+
+                if (pkg.repoUrl) {
+                    const a = ce('a');
+
+                    a.setAttribute('href', pkg.repoUrl);
+                    a.innerText = 'Repository';
+
+                    tdName.appendChild(a);
+                }
+
+                // Add up.
+                tr.appendChild(tdName);
+                tr.appendChild(tdFiles);
+                tbody.appendChild(tr);
+            });
+
+            panel.appendChild(table);
         });
 };
 
@@ -455,6 +576,25 @@ const login = (e) => {
             document.querySelector('interface').classList.add('active');
 
             return null;
+        });
+};
+
+/**
+ * Scroll the screen to a given server block.
+ * @param {Event} e Click event.
+ */
+const scrollToServer = (e) => {
+    const serverName = e.target.getAttribute('data-server-name');
+
+    document.querySelectorAll('h1.server-entry')
+        .forEach(el => {
+            if (el.getAttribute('data-server-name') !== serverName) {
+                return;
+            }
+
+            el.scrollIntoView({
+                block: "end"
+            });
         });
 };
 
@@ -550,4 +690,5 @@ const switchPanel = (e) => {
 
     // Setup link to global functions.
     window.loadFileEntries = loadFileEntries;
+    window.loadPackages = loadPackages;
 })();
