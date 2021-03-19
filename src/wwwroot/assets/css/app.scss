@@ -1,0 +1,269 @@
+﻿* {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #1d1f21;
+    color: #c9cacc;
+    font-family: sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    height: 100%;
+    line-height: 1.725;
+    margin: 0;
+    padding: 0;
+    text-rendering: geometricPrecision;
+
+    form {
+        margin: 0;
+        padding: 0;
+    }
+
+    login {
+        display: none;
+        margin: 0 auto;
+        padding: 100px 0 0;
+        width: 400px;
+
+        &.active {
+            display: block;
+        }
+
+        h1 {
+            color: #2b9cca;
+            display: block;
+            font-family: serif;
+            font-size: 2.5rem;
+            letter-spacing: 0.01em;
+            line-height: 1.25;
+            margin: 0;
+            padding: 2.5rem 0 1rem;
+            position: relative;
+            text-transform: none;
+        }
+
+        input[type=submit] {
+            padding: 10px 13px;
+        }
+
+        p {
+            input[type=text],
+            input[type=password] {
+                display: block;
+                padding: 10px 13px;
+                width: 100%;
+            }
+
+            label {
+                cursor: pointer;
+
+                &::after {
+                    content: ':';
+                }
+            }
+        }
+    }
+
+    interface {
+        display: none;
+        margin: 0;
+        padding: 0;
+
+        &.active {
+            display: block;
+        }
+
+        nav {
+            background-color: white;
+            display: block;
+            height: 50px;
+            left: 0;
+            margin: 0;
+            padding: 0;
+            position: fixed;
+            right: 0;
+            top: 0;
+
+            ul {
+                list-style: none;
+                margin: 0;
+                padding: 0;
+
+                li {
+                    display: block;
+                    float: left;
+                    width: 200px;
+
+                    a {
+                        background-color: white;
+                        color: black;
+                        cursor: pointer;
+                        display: block;
+                        font-weight: bold;
+                        height: 50px;
+                        padding: 13px 10px 0;
+                        width: 100%;
+
+                        &.warning {
+                            background-image: url('/assets/img/warning.png');
+                            background-position: left 10px center;
+                            background-repeat: no-repeat;
+                            padding-left: 30px;
+                        }
+
+                        &.active {
+                            background-color: #ddd;
+
+                            span {
+                                background-color: #ccc;
+                            }
+                        }
+
+                        &:hover {
+                            background-color: #eee;
+                        }
+
+                        span {
+                            background-color: #ddd;
+                            border-radius: 5px;
+                            display: inline-block;
+                            font-weight: normal;
+                            padding: 0 5px;
+
+                            &.red {
+                                color: red;
+                                padding: 0;
+                            }
+
+                            &.green {
+                                color: green;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        panels {
+            display: block;
+            margin: 52px 0 0;
+            padding: 0;
+
+            panel {
+                background-color: white;
+                color: #333;
+                display: none;
+                margin: 0;
+                padding: 10px 10px 100px;
+
+                &.active {
+                    display: block;
+                }
+
+                h1 {
+                    color: #333;
+                    display: block;
+                    font-family: serif;
+                    font-size: 1.5rem;
+                    font-weight: normal;
+                    letter-spacing: 0.01em;
+                    line-height: 1.25;
+                    margin: 0;
+                    padding: 0;
+                    text-transform: none;
+
+                    span {
+                        font-weight: bold;
+                    }
+                }
+
+                table {
+                    margin-top: 20px;
+                    width: 100%;
+
+                    thead {
+                        tr {
+                            th {
+                                background-color: #eee;
+                                font-weight: bold;
+                                padding: 2px 5px;
+                                text-align: left;
+                            }
+                        }
+                    }
+
+                    tbody {
+                        tr {
+                            td {
+                                background-color: #eee;
+                                padding: 2px 5px;
+
+                                a {
+                                    &.warning {
+                                        background-image: url('/assets/img/warning.png');
+                                        background-position: left center;
+                                        background-repeat: no-repeat;
+                                        cursor: pointer;
+                                        display: block;
+                                        padding-left: 20px;
+                                    }
+                                }
+                            }
+
+                            &:hover {
+                                td {
+                                    background-color: #ddd;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        popups {
+            background-color: rgba(0, 0, 0, .25);
+            bottom: 0;
+            display: none;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+
+            &.active {
+                display: block;
+            }
+
+            popup {
+                background-color: white;
+                display: none;
+                margin: 100px auto 0;
+                width: 700px;
+
+                &.active {
+                    display: block;
+                }
+            }
+        }
+    }
+}
+
+.loading {
+    background-image: url('/assets/img/ajax-loader.gif');
+    background-position: center center;
+    background-repeat: no-repeat;
+    color: transparent;
+}
+
+@media screen and (max-width: 700px) {
+    body {
+        login {
+            padding: 0 10px;
+            width: 100%;
+
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    }
+}
