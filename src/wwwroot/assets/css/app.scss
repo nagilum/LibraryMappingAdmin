@@ -236,12 +236,76 @@ body {
 
             popup {
                 background-color: white;
+                color: #333;
                 display: none;
                 margin: 100px auto 0;
+                padding: 0;
                 width: 700px;
 
                 &.active {
                     display: block;
+                }
+
+                &.loading {
+                    content {
+                        opacity: 0;
+                    }
+
+                    buttons {
+                        input[type=submit] {
+                            opacity: 0;
+                        }
+                    }
+                }
+
+                header {
+                    background-color: #ddd;
+                    display: block;
+                    margin: 0;
+                    padding: 10px;
+
+                    h1 {
+                        font-size: 1rem;
+                        margin: 0;
+                        padding: 0;
+                    }
+                }
+
+                content {
+                    display: block;
+                    margin: 0;
+                    padding: 10px;
+
+                    label {
+                        cursor: pointer;
+                        display: block;
+                    }
+
+                    input[type=text],
+                    input[type=url] {
+                        display: block;
+                        padding: 10px;
+                        width: 100%;
+                    }
+
+                    select {
+                        display: block;
+                        padding: 10px;
+                        width: 100%;
+                    }
+                }
+
+                buttons {
+                    background-color: #eee;
+                    display: block;
+                    margin: 0;
+                    padding: 10px;
+                    text-align: right;
+
+                    input[type=submit],
+                    button {
+                        padding: 5px;
+                    }
                 }
             }
         }

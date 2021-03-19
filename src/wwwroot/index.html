@@ -62,7 +62,48 @@
             </panels>
             <popups>
                 <popup id="PopupAttachPackage">
-                    PopupAttachPackage
+                    <header>
+                        <h1>Attach Existing Package</h1>
+                    </header>
+                    <form>
+                        <content>
+                            <label for="SelectAttachPackage">Select package to attach</label>
+                            <select id="SelectAttachPackage"></select>
+                        </content>
+                        <buttons>
+                            <input type="submit" id="ButtonAttachPackage" value="Attach">
+                            <button class="auto-close-popup">Close</button>
+                        </buttons>
+                    </form>
+                </popup>
+                <popup id="PopupNewPackage">
+                    <header>
+                        <h1>Create New Package</h1>
+                    </header>
+                    <form>
+                        <content>
+                            <p>
+                                <label for="NewPackageName">Name</label>
+                                <input type="text" id="NewPackageName" placeholder="Enter the name of the package">
+                            </p>
+                            <p>
+                                <label for="NewPackageNuGetUrl">NuGet Url</label>
+                                <input type="url" id="NewPackageNuGetUrl" placeholder="URL to NuGet package.">
+                            </p>
+                            <p>
+                                <label for="NewPackageInfoUrl">Info Url</label>
+                                <input type="url" id="NewPackageInfoUrl" placeholder="URL to page with info about package.">
+                            </p>
+                            <p>
+                                <label for="NewPackageRepoUrl">Repository Url</label>
+                                <input type="url" id="NewPackageRepoUrl" placeholder="URL to package repository.">
+                            </p>
+                        </content>
+                        <buttons>
+                            <input type="submit" id="ButtonNewPackage" value="Save">
+                            <button class="auto-close-popup">Close</button>
+                        </buttons>
+                    </form>
                 </popup>
             </popups>
         </interface>

@@ -1,15 +1,140 @@
 ﻿"use strict";
 
 /**
+ * Show a popup that allows the user to add a new package.
+ * @param {Event} e Button click event.
+ */
+const addNewPackage = (e) => {
+    e.preventDefault();
+
+    showPopup('PopupNewPackage');
+
+    const popup = document.querySelector('popup#PopupNewPackage'),
+        filename = e.target.getAttribute('data-filename');
+
+    popup.setAttribute('data-filename', filename);
+    popup.classList.remove('loading');
+}
+
+/**
+ * Create the new package and assign the file entry.
+ * @param {Event} e Click event.
+ */
+const addNewPackageSave = (e) => {
+    e.preventDefault();
+
+    const popup = document.querySelector('popup#PopupNewPackage'),
+        name = document.querySelector('input#NewPackageName').value,
+        nuGetUrl = document.querySelector('input#NewPackageNuGetUrl').value,
+        infoUrl = document.querySelector('input#NewPackageInfoUrl').value,
+        repoUrl = document.querySelector('input#NewPackageRepoUrl').value;
+
+    e.target.classList.add('loading');
+
+    const io = {
+        name: name,
+        nuGetUrl: nuGetUrl,
+        infoUrl: infoUrl,
+        repoUrl: repoUrl,
+        files: [popup.getAttribute('data-filename')]
+    };
+
+    return fw(
+            '/api/package',
+            'POST',
+            io)
+        .then(obj => {
+            if (obj.message) {
+                return error(obj.message);
+            }
+
+            e.target.classList.remove('loading');
+
+            // Refresh the stats.
+            return getPanelLinkStats()
+                .then(() => {
+                    // Load and display the File Entries table.
+                    return loadFileEntries()
+                        .then(() => {
+                            // Close the popup.
+                            closePopup();
+                        });
+                });
+        });
+};
+
+/**
  * Show a popup that allows the user to assign a package to a filename.
  * @param {Event} e Link click event.
  */
-const assignPackage = (e) => {
+const attachPackage = (e) => {
     e.preventDefault();
 
     showPopup('PopupAttachPackage');
 
-    // TODO
+    return fw('/api/package')
+        .then(packages => {
+            if (!packages) {
+                return;
+            }
+
+            const popup = document.querySelector('popup#PopupAttachPackage'),
+                select = document.querySelector('select#SelectAttachPackage'),
+                save = document.querySelector('input#ButtonAttachPackage'),
+                filename = e.target.getAttribute('data-filename');
+
+            save.setAttribute('data-filename', filename);
+
+            select.innerHTML = '';
+
+            packages.forEach(pkg => {
+                const option = document.createElement('option');
+
+                option.value = pkg.id;
+                option.innerText = pkg.name;
+
+                select.appendChild(option);
+            });
+
+            popup.classList.remove('loading');
+        });
+};
+
+/**
+ * Attach the specified package to a given filename.
+ * @param {Event} e Button click event.
+ */
+const attachPackageSave = (e) => {
+    e.preventDefault();
+
+    const select = document.querySelector('select#SelectAttachPackage');
+
+    e.target.classList.add('loading');
+
+    return fw(
+            `/api/package/${select.value}/attach`,
+            'POST',
+            {
+                fileName: e.target.getAttribute('data-filename')
+            })
+        .then(obj => {
+            if (obj.message) {
+                return error(obj.message);
+            }
+
+            e.target.classList.remove('loading');
+
+            // Refresh the stats.
+            return getPanelLinkStats()
+                .then(() => {
+                    // Load and display the File Entries table.
+                    return loadFileEntries()
+                        .then(() => {
+                            // Close the popup.
+                            closePopup();
+                        });
+                });
+        });
 };
 
 /**
@@ -30,15 +155,19 @@ const checkForLoggedInUser = () => {
 /**
  * Close all active popups.
  */
-const closePopup = () => {
+const closePopup = (e) => {
+    if (e) {
+        e.preventDefault();
+    }
+
     document.querySelectorAll('popup.active')
-        .forEach(e => {
-            e.classList.remove('active');
+        .forEach(m => {
+            m.classList.remove('active');
         });
 
     document.querySelectorAll('popups')
-        .forEach(e => {
-            e.classList.remove('active');
+        .forEach(m => {
+            m.classList.remove('active');
         });
 }
 
@@ -168,6 +297,11 @@ const getPanelLinkStats = () => {
  * Load and display the File Entries table.
  */
 const loadFileEntries = () => {
+    const panel = document.querySelector('panel#PanelFileEntries');
+
+    panel.classList.add('loading');
+    panel.innerHTML = '';
+
     return fw('/api/fileentry')
         .then(obj => {
             return fw('/api/package')
@@ -185,12 +319,6 @@ const loadFileEntries = () => {
 
             const servers = wr.servers,
                 packages = wr.packages;
-
-            console.log('wr', wr);
-            console.log('servers', servers);
-            console.log('packages', packages);
-
-            const panel = document.querySelector('panel#PanelFileEntries');
 
             panel.classList.remove('loading');
 
@@ -254,15 +382,23 @@ const loadFileEntries = () => {
                         }
                     }
                     else {
-                        const a = document.createElement('a');
+                        const aep = document.createElement('a'),
+                            anp = document.createElement('a');
 
-                        a.setAttribute('data-filename', fe.fileName);
-                        a.setAttribute('data-fe-id', fe.id);
-                        a.classList.add('warning');
-                        a.innerText = 'Assign Package';
-                        a.addEventListener('click', assignPackage);
+                        aep.setAttribute('data-filename', fe.fileName);
+                        aep.setAttribute('data-fe-id', fe.id);
+                        aep.classList.add('warning');
+                        aep.innerText = 'Attach Existing Package';
+                        aep.addEventListener('click', attachPackage);
 
-                        tdPackage.appendChild(a);
+                        anp.setAttribute('data-filename', fe.fileName);
+                        anp.setAttribute('data-fe-id', fe.id);
+                        anp.classList.add('warning');
+                        anp.innerText = 'Create New Package';
+                        anp.addEventListener('click', addNewPackage);
+
+                        tdPackage.appendChild(aep);
+                        tdPackage.appendChild(anp);
                     }
 
                     // Last Scanned
@@ -331,6 +467,8 @@ const showPopup = (id) => {
         popups = popup.parentElement;
 
     popup.classList.add('active');
+    popup.classList.add('loading');
+
     popups.classList.add('active');
 }
 
@@ -385,12 +523,20 @@ const switchPanel = (e) => {
 (() => {
     // Add single click events.
     document.querySelector('input#Login').addEventListener('click', login);
+    document.querySelector('input#ButtonAttachPackage').addEventListener('click', attachPackageSave);
+    document.querySelector('input#ButtonNewPackage').addEventListener('click', addNewPackageSave);
     document.querySelector('popups').addEventListener('click', closePopups);
 
-    // Add multi-link click events.
+    // Add trigger for switching panels.
     document.querySelectorAll('a.panel-link')
         .forEach(a => {
             a.addEventListener('click', switchPanel);
+        });
+
+    // Add trigger for closing dialogs.
+    document.querySelectorAll('button.auto-close-popup')
+        .forEach(b => {
+            b.addEventListener('click', closePopup);
         });
 
     // Set focus to the username input box.

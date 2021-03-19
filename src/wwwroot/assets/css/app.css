@@ -156,11 +156,51 @@ body {
         display: block; }
       body interface popups popup {
         background-color: white;
+        color: #333;
         display: none;
         margin: 100px auto 0;
+        padding: 0;
         width: 700px; }
         body interface popups popup.active {
           display: block; }
+        body interface popups popup.loading content {
+          opacity: 0; }
+        body interface popups popup.loading buttons input[type=submit] {
+          opacity: 0; }
+        body interface popups popup header {
+          background-color: #ddd;
+          display: block;
+          margin: 0;
+          padding: 10px; }
+          body interface popups popup header h1 {
+            font-size: 1rem;
+            margin: 0;
+            padding: 0; }
+        body interface popups popup content {
+          display: block;
+          margin: 0;
+          padding: 10px; }
+          body interface popups popup content label {
+            cursor: pointer;
+            display: block; }
+          body interface popups popup content input[type=text],
+          body interface popups popup content input[type=url] {
+            display: block;
+            padding: 10px;
+            width: 100%; }
+          body interface popups popup content select {
+            display: block;
+            padding: 10px;
+            width: 100%; }
+        body interface popups popup buttons {
+          background-color: #eee;
+          display: block;
+          margin: 0;
+          padding: 10px;
+          text-align: right; }
+          body interface popups popup buttons input[type=submit],
+          body interface popups popup buttons button {
+            padding: 5px; }
 
 .loading {
   background-image: url("/assets/img/ajax-loader.gif");
