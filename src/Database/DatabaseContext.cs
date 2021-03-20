@@ -16,6 +16,8 @@ namespace DotNetLibraryAdmin.Database
 
         #region DbSets
 
+        public DbSet<PackageBadVersion> PackageBadVersions { get; set; }
+
         public DbSet<FileEntry> FileEntries { get; set; }
 
         public DbSet<Package> Packages { get; set; }

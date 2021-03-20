@@ -12,6 +12,12 @@ body {
   margin: 0;
   padding: 0;
   text-rendering: geometricPrecision; }
+  body a {
+    color: blue;
+    cursor: pointer;
+    text-decoration: underline; }
+    body a:hover {
+      color: darkblue; }
   body form {
     margin: 0;
     padding: 0; }
@@ -76,6 +82,7 @@ body {
             font-weight: bold;
             height: 50px;
             padding: 13px 10px 0;
+            text-decoration: none;
             width: 100%; }
             body interface nav ul li a.warning {
               background-image: url("/assets/img/warning.png");

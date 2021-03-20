@@ -105,6 +105,35 @@
                         </buttons>
                     </form>
                 </popup>
+                <popup id="PopupNewPackageBadVersion">
+                    <header>
+                        <h1>Add New Bad Version to Package</h1>
+                    </header>
+                    <form>
+                        <content>
+                            <p>
+                                <label for="InputBadVersionFileFrom">File Version, from</label>
+                                <input type="text" id="InputBadVersionFileFrom" placeholder="1.2.3.4">
+                            </p>
+                            <p>
+                                <label for="InputBadVersionFileTo">File Version, to</label>
+                                <input type="text" id="InputBadVersionFileTo" placeholder="1.2.3.4">
+                            </p>
+                            <p>
+                                <label for="InputBadVersionProductFrom">Product Version, from</label>
+                                <input type="text" id="InputBadVersionProductFrom" placeholder="1.2.3.4">
+                            </p>
+                            <p>
+                                <label for="InputBadVersionProductTo">Product Version, to</label>
+                                <input type="text" id="InputBadVersionProductTo" placeholder="1.2.3.4">
+                            </p>
+                        </content>
+                        <buttons>
+                            <input type="submit" id="ButtonNewPackageBadVersion" value="Save">
+                            <button class="auto-close-popup">Close</button>
+                        </buttons>
+                    </form>
+                </popup>
             </popups>
         </interface>
         

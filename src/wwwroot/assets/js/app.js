@@ -64,6 +64,70 @@ const addNewPackageSave = (e) => {
 };
 
 /**
+ * Open popup to add a new 'bad version' to a package.
+ * @param {Event} e Click event.
+ */
+const addNewPackageBadVersion = (e) => {
+    e.preventDefault();
+
+    showPopup('PopupNewPackageBadVersion');
+
+    const popup = document.querySelector('popup#PopupNewPackageBadVersion');
+
+    popup.setAttribute('data-package-id', e.target.getAttribute('data-package-id'));
+    popup.classList.remove('loading');
+};
+
+/**
+ * Save the new 'bad version' to API.
+ * @param {Event} e Click event.
+ */
+const addNewPackageBadVersionSave = (e) => {
+    e.preventDefault();
+
+    const popup = document.querySelector('popup#PopupNewPackageBadVersion'),
+        packageId = parseInt(popup.getAttribute('data-package-id'), 10);
+
+    const fvf = document.querySelector('input#InputBadVersionFileFrom').value,
+        fvt = document.querySelector('input#InputBadVersionFileTo').value,
+        pvf = document.querySelector('input#InputBadVersionProductFrom').value,
+        pvt = document.querySelector('input#InputBadVersionProductTo').value;
+
+    const io = {
+        packageId: packageId,
+        fileVersionFrom: fvf,
+        fileVersionTo: fvt,
+        productVersionFrom: pvf,
+        productVersionTo: pvt
+    };
+
+    e.target.classList.add('loading');
+
+    return fw(
+            '/api/badpackageversion',
+            'POST',
+            io)
+        .then(obj => {
+            if (obj.message) {
+                return error(obj.message);
+            }
+
+            e.target.classList.remove('loading');
+
+            // Refresh the stats.
+            return getPanelLinkStats()
+                .then(() => {
+                    // Load and display the File Entries table.
+                    return loadPackages()
+                        .then(() => {
+                            // Close the popup.
+                            closePopup();
+                        });
+                });
+        });
+};
+
+/**
  * Show a popup that allows the user to assign a package to a filename.
  * @param {Event} e Link click event.
  */
@@ -191,6 +255,37 @@ const closePopups = (e) => {
 
     closePopup();
 }
+
+/**
+ * Delete a bad-version, if ok'd.
+ * @param {Event} e Click event.
+ */
+const deletePackageBadVersion = (e) => {
+    e.preventDefault();
+
+    const retval = confirm('Are you sure?'),
+        id = parseInt(e.target.getAttribute('data-id'), 10);
+
+    if (!retval) {
+        return null;
+    }
+
+    return fw(
+            `/api/badpackageversion/${id}`,
+            'DELETE')
+        .then(() => {
+            // Refresh the stats.
+            return getPanelLinkStats()
+                .then(() => {
+                    // Load and display the File Entries table.
+                    return loadPackages()
+                        .then(() => {
+                            // Close the popup.
+                            closePopup();
+                        });
+                });
+        });
+};
 
 /**
  * Display an error.
@@ -458,12 +553,24 @@ const loadPackages = () => {
     panel.innerHTML = '';
 
     return fw('/api/package')
-        .then(list => {
+        .then(packages => {
+            return fw('/api/badpackageversion')
+                .then(bpvl => {
+                    return {
+                        bpvl: bpvl,
+                        packages: packages
+                    };
+                });
+        })
+        .then(obj => {
             panel.classList.remove('loading');
 
-            if (!list) {
+            if (!obj) {
                 return;
             }
+
+            const packages = obj.packages,
+                bpvl = obj.bpvl;
 
             const table = ce('table'),
                 thead = ce('thead'),
@@ -473,20 +580,23 @@ const loadPackages = () => {
                 '<tr>' +
                 '  <th>Name</th>' +
                 '  <th>Files</th>' +
+                '  <th>Bad Versions</th>' +
                 '</tr>';
 
             table.appendChild(thead);
             table.appendChild(tbody);
 
-            list.forEach(pkg => {
+            packages.forEach(pkg => {
                 const tr = ce('tr'),
                     tdName = ce('td'),
-                    tdFiles = ce('td');
+                    tdFiles = ce('td'),
+                    tdBadVersions = ce('td');
 
                 const name = ce('div');
                 name.innerText = pkg.name;
                 tdName.appendChild(name);
 
+                // List files.
                 if (pkg.files) {
                     const fileList = JSON.parse(pkg.files),
                         flul = ce('ul');
@@ -501,6 +611,7 @@ const loadPackages = () => {
                     tdFiles.appendChild(flul);
                 }
 
+                // Add links.
                 if (pkg.nuGetUrl) {
                     const a = ce('a');
 
@@ -528,9 +639,88 @@ const loadPackages = () => {
                     tdName.appendChild(a);
                 }
 
+                // List bad versions.
+                const bpvul = ce('ul'),
+                    bpvaddli = ce('li'),
+                    bpvadda = ce('a');
+
+                bpvl.forEach(bpv => {
+                    if (bpv.packageId !== pkg.id) {
+                        return;
+                    }
+
+                    const bpvli = ce('li'),
+                        bpvt = ce('span'),
+                        bpvd = ce('a');
+
+                    let text = '';
+
+                    if (bpv.fileVersionFrom || bpv.fileVersionTo) {
+                        text += 'File Version: ';
+
+                        if (bpv.fileVersionFrom) {
+                            text += ` from: ${bpv.fileVersionFrom} `;
+                        }
+                        else {
+                            text += ' from: ~ ';
+                        }
+
+                        if (bpv.fileVersionTo) {
+                            text += ` to: ${bpv.fileVersionTo} `;
+                        }
+                        else {
+                            text += ' to: ~ ';
+                        }
+                    }
+
+                    if (bpv.productVersionFrom || bpv.productVersionTo) {
+                        if (text !== '') {
+                            text += ' - ';
+                        }
+
+                        text += ' Product Version: ';
+
+                        if (bpv.productVersionFrom) {
+                            text += ` from: ${bpv.productVersionFrom} `;
+                        }
+                        else {
+                            text += ' from: ~ ';
+                        }
+
+                        if (bpv.productVersionTo) {
+                            text += ` to: ${bpv.productVersionTo} `;
+                        }
+                        else {
+                            text += ' to: ~ ';
+                        }
+                    }
+
+                    text += ' &nbsp; &nbsp; ';
+
+                    bpvt.innerHTML = text;
+
+                    bpvd.setAttribute('data-id', bpv.id);
+                    bpvd.innerText = 'delete';
+                    bpvd.addEventListener('click', deletePackageBadVersion);
+
+                    bpvli.appendChild(bpvt);
+                    bpvli.appendChild(bpvd);
+
+                    bpvul.appendChild(bpvli);
+                });
+
+                bpvadda.setAttribute('data-package-id', pkg.id);
+                bpvadda.innerText = 'Add New';
+                bpvadda.addEventListener('click', addNewPackageBadVersion);
+
+                bpvaddli.appendChild(bpvadda);
+                bpvul.appendChild(bpvaddli);
+                tdBadVersions.appendChild(bpvul);
+
                 // Add up.
                 tr.appendChild(tdName);
                 tr.appendChild(tdFiles);
+                tr.appendChild(tdBadVersions);
                 tbody.appendChild(tr);
             });
 
@@ -665,6 +855,7 @@ const switchPanel = (e) => {
     document.querySelector('input#Login').addEventListener('click', login);
     document.querySelector('input#ButtonAttachPackage').addEventListener('click', attachPackageSave);
     document.querySelector('input#ButtonNewPackage').addEventListener('click', addNewPackageSave);
+    document.querySelector('input#ButtonNewPackageBadVersion').addEventListener('click', addNewPackageBadVersionSave);
     document.querySelector('popups').addEventListener('click', closePopups);
 
     // Add trigger for switching panels.

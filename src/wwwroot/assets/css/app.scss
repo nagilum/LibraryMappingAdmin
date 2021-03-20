@@ -14,6 +14,16 @@ body {
     padding: 0;
     text-rendering: geometricPrecision;
 
+    a {
+        color: blue;
+        cursor: pointer;
+        text-decoration: underline;
+
+        &:hover {
+            color: darkblue;
+        }
+    }
+
     form {
         margin: 0;
         padding: 0;
@@ -102,6 +112,7 @@ body {
                         font-weight: bold;
                         height: 50px;
                         padding: 13px 10px 0;
+                        text-decoration: none;
                         width: 100%;
 
                         &.warning {
