@@ -126,5 +126,45 @@ namespace DotNetLibraryAdmin.Controllers
 
             return this.Ok(new { });
         }
+
+        /// <summary>
+        /// Get a list of all active bad packages and their metadata.
+        /// </summary>
+        /// <returns>A list.</returns>
+        [HttpGet]
+        [Route("list")]
+        [VerifyAuthorization]
+        public async Task<ActionResult> GetList()
+        {
+            await using var db = new DatabaseContext();
+
+            var packages = await db.Packages
+                .Where(n => !n.Deleted.HasValue)
+                .OrderBy(n => n.Name)
+                .ToListAsync();
+
+            var badVersions = await db.PackageBadVersions
+                .Where(n => !n.Deleted.HasValue)
+                .OrderBy(n => n.FileVersionFrom)
+                .ThenBy(n => n.FileVersionTo)
+                .ThenBy(n => n.ProductVersionFrom)
+                .ThenBy(n => n.ProductVersionTo)
+                .ToListAsync();
+
+            var fileEntries = await db.FileEntries
+                .Where(n => n.PackageId.HasValue)
+                .OrderBy(n => n.FileName)
+                .ToListAsync();
+
+            var list = packages
+                .Select(n => BadPackageVersionGetListResponsePayload.Check(
+                    n,
+                    badVersions.Where(m => m.PackageId == n.Id).ToList(),
+                    fileEntries.Where(m => m.PackageId == n.Id).ToList()))
+                .Where(n => n != null)
+                .ToList();
+
+            return this.Ok(list);
+        }
     }
 }

@@ -143,7 +143,10 @@ body {
 
                             &.red {
                                 color: red;
-                                padding: 0;
+
+                                &.no-padding {
+                                    padding: 0;
+                                }
                             }
 
                             &.green {
@@ -165,10 +168,14 @@ body {
                 color: #333;
                 display: none;
                 margin: 0;
-                padding: 10px 10px 100px;
+                padding: 10px;
 
                 &.active {
                     display: block;
+                }
+
+                &.loading {
+                    padding-bottom: 100px;
                 }
 
                 h1 {
@@ -197,6 +204,7 @@ body {
                 }
 
                 table {
+                    margin-bottom: 100px;
                     margin-top: 20px;
                     width: 100%;
 

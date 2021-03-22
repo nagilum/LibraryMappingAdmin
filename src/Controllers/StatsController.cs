@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using DotNetLibraryAdmin.Attributes;
 using DotNetLibraryAdmin.Database;
-using DotNetLibraryAdmin.Database.Tables;
 using Microsoft.EntityFrameworkCore;
 
 namespace DotNetLibraryAdmin.Controllers
@@ -35,10 +34,6 @@ namespace DotNetLibraryAdmin.Controllers
                 {
                     "packages",
                     await db.Packages.CountAsync()
-                },
-                {
-                    "badPackages",
-                    (await Package.GetBadPackagesAsync()).Count
                 }
             };
 

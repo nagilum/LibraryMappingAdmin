@@ -102,8 +102,9 @@ body {
               font-weight: normal;
               padding: 0 5px; }
               body interface nav ul li a span.red {
-                color: red;
-                padding: 0; }
+                color: red; }
+                body interface nav ul li a span.red.no-padding {
+                  padding: 0; }
               body interface nav ul li a span.green {
                 color: green; }
     body interface panels {
@@ -115,9 +116,11 @@ body {
         color: #333;
         display: none;
         margin: 0;
-        padding: 10px 10px 100px; }
+        padding: 10px; }
         body interface panels panel.active {
           display: block; }
+        body interface panels panel.loading {
+          padding-bottom: 100px; }
         body interface panels panel h1 {
           color: #333;
           display: block;
@@ -134,6 +137,7 @@ body {
         body interface panels panel ul li a {
           cursor: pointer; }
         body interface panels panel table {
+          margin-bottom: 100px;
           margin-top: 20px;
           width: 100%; }
           body interface panels panel table thead tr th {

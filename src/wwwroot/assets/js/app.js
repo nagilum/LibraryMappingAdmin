@@ -358,26 +358,23 @@ const getPanelLinkStats = () => {
     return fw('/api/stats')
         .then(obj => {
             if (!obj) {
-                return;
+                return null;
             }
 
             const lfe = document.querySelector('a#LinkFileEntries'),
-                lp = document.querySelector('a#LinkPackages'),
-                lbp = document.querySelector('a#LinkBadPackages');
+                lp = document.querySelector('a#LinkPackages');
 
             const html1 = obj.fileEntriesWithoutPackage > 0
-                ? `${lfe.getAttribute('data-title')} <span class="count">${obj.fileEntries}/<span class="red">${obj.fileEntriesWithoutPackage}</span></span>`
+                ? `${lfe.getAttribute('data-title')} <span class="count">${obj.fileEntries}/<span class="red no-padding">${obj.fileEntriesWithoutPackage}</span></span>`
                 : `${lfe.getAttribute('data-title')} <span class="count">${obj.fileEntries}</span>`;
 
-            const html2 = `${lp.getAttribute('data-title')} <span class="count">${obj.packages}</span>`,
-                html3 = `${lbp.getAttribute('data-title')} <span class="count ${(obj.badPackages > 0 ? 'red' : 'green')}">${obj.badPackages}</span>`;
+            const html2 = `${lp.getAttribute('data-title')} <span class="count">${obj.packages}</span>`;
 
             const title1 = obj.fileEntriesWithoutPackage > 0
                 ? `Total entries: ${obj.fileEntries} - Entries without packages: ${obj.fileEntriesWithoutPackage}`
                 : `Total entries: ${obj.fileEntries}`;
 
-            const title2 = `Total packages: ${obj.packages}`,
-                title3 = `Total bad packages: ${obj.badPackages}`;
+            const title2 = `Total packages: ${obj.packages}`;
 
             lfe.setAttribute('title', title1);
             lfe.innerHTML = html1;
@@ -385,16 +382,125 @@ const getPanelLinkStats = () => {
             lp.setAttribute('title', title2);
             lp.innerHTML = html2;
 
-            lbp.setAttribute('title', title3);
-            lbp.innerHTML = html3;
-
             if (obj.fileEntriesWithoutPackage > 0) {
                 lfe.classList.add('warning');
             }
 
-            if (obj.badPackages > 0) {
-                lbp.classList.add('warning');
+            return fw('/api/badpackageversion/list')
+                .then(list => {
+                    const lbp = document.querySelector('a#LinkBadPackages'),
+                        html3 = `${lbp.getAttribute('data-title')} <span class="count ${(list.length > 0 ? 'red' : 'green')}">${list.length}</span>`,
+                        title3 = `Total bad packages: ${obj.badPackages}`;
+
+                    lbp.setAttribute('title', title3);
+                    lbp.innerHTML = html3;
+
+                    if (list.length > 0) {
+                        lbp.classList.add('warning');
+                    }
+                });
+        });
+};
+
+/**
+ * Load and display the bad packages table.
+ */
+const loadBadPackages = () => {
+    const panel = document.querySelector('panel#PanelBadPackages');
+
+    panel.classList.add('loading');
+    panel.innerHTML = '';
+
+    return fw('/api/badpackageversion/list')
+        .then(list => {
+            panel.classList.remove('loading');
+
+            if (!list) {
+                return;
             }
+
+            console.log('list', list);
+
+            list.forEach(item => {
+                const pkg = ce('h1');
+                pkg.innerText = item.package.name;
+                panel.appendChild(pkg);
+
+                item.badVersions.forEach(bvitem => {
+                    const bvul = ce('ul');
+
+                    // Add versions.
+                    if (bvitem.badVersion.fileVersionFrom) {
+                        const li = ce('li');
+                        li.innerText = `File Version From: ${bvitem.badVersion.fileVersionFrom}`;
+                        bvul.appendChild(li);
+                    }
+
+                    if (bvitem.badVersion.fileVersionTo) {
+                        const li = ce('li');
+                        li.innerText = `File Version To: ${bvitem.badVersion.fileVersionTo}`;
+                        bvul.appendChild(li);
+                    }
+
+                    if (bvitem.badVersion.productVersionFrom) {
+                        const li = ce('li');
+                        li.innerText = `Product Version From: ${bvitem.badVersion.productVersionFrom}`;
+                        bvul.appendChild(li);
+                    }
+
+                    if (bvitem.badVersion.productVersionTo) {
+                        const li = ce('li');
+                        li.innerText = `Product Version To: ${bvitem.badVersion.productVersionTo}`;
+                        bvul.appendChild(li);
+                    }
+
+                    panel.appendChild(bvul);
+
+                    const table = ce('table'),
+                        thead = ce('thead'),
+                        tbody = ce('tbody');
+
+                    thead.innerHTML =
+                        '<tr>' +
+                        '  <th>Server</th>' +
+                        '  <th>Path</th>' +
+                        '  <th>Filename</th>' +
+                        '  <th>Last Scan</th>' +
+                        '  <th>File Version</th>' +
+                        '  <th>Product Version</th>' +
+                        '</tr>';
+
+                    table.appendChild(thead);
+                    table.appendChild(tbody);
+                    panel.appendChild(table);
+
+                    bvitem.fileEntries.forEach(fe => {
+                        const tr = ce('tr'),
+                            tdServer = ce('td'),
+                            tdPath = ce('td'),
+                            tdFilename = ce('td'),
+                            tdLastScan = ce('td'),
+                            tdFileVersion = ce('td'),
+                            tdProductVersion = ce('td');
+
+                        tdServer.innerText = fe.serverName;
+                        tdPath.innerText = fe.filePath;
+                        tdFilename.innerText = fe.fileName;
+                        tdLastScan.innerText = fe.lastScan;
+                        tdFileVersion.innerText = fe.fileVersion;
+                        tdProductVersion.innerText = fe.productVersion;
+
+                        tr.appendChild(tdServer);
+                        tr.appendChild(tdPath);
+                        tr.appendChild(tdFilename);
+                        tr.appendChild(tdLastScan);
+                        tr.appendChild(tdFileVersion);
+                        tr.appendChild(tdProductVersion);
+
+                        tbody.appendChild(tr);
+                    });
+                });
+            });
         });
 };
 
@@ -880,6 +986,7 @@ const switchPanel = (e) => {
     getPanelLinkStats();
 
     // Setup link to global functions.
+    window.loadBadPackages = loadBadPackages;
     window.loadFileEntries = loadFileEntries;
     window.loadPackages = loadPackages;
 })();
