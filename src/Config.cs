@@ -60,6 +60,11 @@ namespace DotNetLibraryAdmin
 
             for (var i = 0; i < keys.Length; i++)
             {
+                if (dict == null)
+                {
+                    return null;
+                }
+
                 if (!dict.ContainsKey(keys[i]))
                 {
                     return null;
